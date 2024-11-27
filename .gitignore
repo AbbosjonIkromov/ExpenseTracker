@@ -1,0 +1,9 @@
+# obj va bin papkalar uchun
+/obj/
+/bin/
+
+# csproj uchun
+*.csproj
+
+#sln uchun
+*.sln
