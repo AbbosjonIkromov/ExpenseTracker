@@ -62,7 +62,7 @@ static bool HitEnter()
     Console.Write("\nHit enter to add expense...");
     string str = Console.ReadLine();
     Console.WriteLine('\n');
-    return (string.IsNullOrEmpty(str)) ? true : (Regex.IsMatch(str, "stop", RegexOptions.IgnoreCase)) ? false : false;
+    return !(Regex.IsMatch(str, "stop", RegexOptions.IgnoreCase)) ? true : false;
 
 
     // if(string.IsNullOrEmpty(str))
