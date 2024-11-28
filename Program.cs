@@ -1,74 +1,72 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Diagnostics;
+using System.Text;
+using System.Text.RegularExpressions;
+using Microsoft.Win32.SafeHandles;
 
 
 string path = @"C:\Users\Lenovo 5i Pro\ExpenceTracker";
 string fullPath = Path.Combine(path, "expenses.txt");
 
-IsFileExists(fullPath);
+StringBuilder stringBuilder = new StringBuilder();
+string line = " ----------------------------------------------- \n";
+stringBuilder.Append(line);
+stringBuilder.AppendFormat($"| {"Expence",-10}    | {"Amount",-10}    | {"Date",-10}    |\n");
+stringBuilder.Append(line);
 
-var expenseList = GetExpenseDetails(); // Tuple
-
-WriteFile(expenseList, fullPath);
-
-
-
-
-static List<(string Expence, decimal Amount, TimeOnly Date)> GetExpenseDetails()
+string expence;
+decimal amount;
+TimeOnly date;
+bool check = true;
+do
 {
-    var expenseList = new List<(string Expence, decimal Amount, TimeOnly Date)>();
-    do
+    Console.Write("Expence: ");
+    expence = Console.ReadLine();
+    Console.Write("Amount: ");
+    amount = decimal.Parse(Console.ReadLine());
+    Console.Write("Date: ");
+    date = TimeOnly.Parse(Console.ReadLine());
+    stringBuilder.AppendFormat("| {0,-10}    | {1,-10}    | {2,-10}    |\n", expence, amount, date);
+    stringBuilder.Append(line);
+
+    Console.Write("\nHit enter to add expense...");
+    string str = Console.ReadLine();
+
+    if (string.IsNullOrEmpty(str))
+        check = true;
+    else if (Regex.IsMatch(str, "stop", RegexOptions.IgnoreCase))
+        break;
+    else
+        check = false;
+
+} while (check);
+
+
+if (check)
+{
+    try
     {
-        Console.Write("Expence: ");
-        string expence = Console.ReadLine();
-        Console.Write("Amount: ");
-        decimal amount = decimal.Parse(Console.ReadLine());
-        Console.Write("Date: ");
-        TimeOnly date = TimeOnly.Parse(Console.ReadLine());
 
-        expenseList.Add((expence, amount, date));
+        WriteFile(stringBuilder, fullPath);
+        System.Console.WriteLine(stringBuilder);
+        Console.WriteLine("\nMalumotlar file ga muvaffaqiyatli yozildi.\n");
 
-    } while (HitEnter());
-
-    return expenseList;
-
+    }
+    catch (FileNotFoundException ex)
+    {
+        Console.WriteLine("Exception: ", ex.Message);
+    }
 }
+else
+    Console.WriteLine("\nDastur Yakunlandi!");
 
-static void WriteFile(List<(string Expence, decimal Amount, TimeOnly Date)> expenseList, string path)
+
+static void WriteFile(StringBuilder stringBuilder, string path)
 {
     using (StreamWriter streamWriter = new StreamWriter(path))
     {
-        streamWriter.WriteLine(" ----------------------------------------------- ");
-        streamWriter.WriteLine($"| {"Expence",-10}    | {"Amount",-10}    | {"Date",-10}    |");
-        streamWriter.WriteLine(" ----------------------------------------------- ");
-
-        foreach (var expence in expenseList)
-        {
-            streamWriter.WriteLine($"| {expence.Expence,-10}    | {expence.Amount,-10}    | {expence.Date,-10}    |");
-            streamWriter.WriteLine(" ----------------------------------------------- ");
-        }
+        streamWriter.WriteLine(stringBuilder);
     }
-    Console.WriteLine("\nMalumotlar file ga muvaffaqiyatli yozildi.\n");
 }
 
-
-static void IsFileExists(string path)
-{
-    if (!File.Exists(path))
-        File.Create(path);
-}
-
-static bool HitEnter()
-{
-    Console.Write("\nHit enter to add expense...");
-    string str = Console.ReadLine();
-    Console.WriteLine('\n');
-    return !(Regex.IsMatch(str, "stop", RegexOptions.IgnoreCase)) ? true : false;
-
-
-    // if(string.IsNullOrEmpty(str))
-    //     return true;
-
-    // if(Regex.IsMatch(str, "stop", RegexOptions.IgnoreCase))
-    //     return false;
-}
 
